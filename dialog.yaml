@@ -1,0 +1,65 @@
+NPC: Guard
+AVATAR: Guard1.png
+START: main_dialog
+
+SECTIONS:
+    main_dialog:
+        - say: |
+            Things are tough around here, let me tell you our problems
+        - responses:
+            - ["Sure, tell me all about it", listen_more]
+            - ["That sounds boring. Bye.", stop_talking]
+
+    listen_more:
+        - say: |
+            Raiders stole our cattle, our well was poisoned, and the beer is
+            all gone!
+        - responses:
+            - ["Tell me about the raiders", elaborate_raiders]
+            - ["Tell me about the well", elaborate_well]
+            - ["Tell me about the beer", elaborate_beer]
+            - ["Good luck with that, buddy", stop_talking]
+
+    elaborate_raiders:
+        - say: |
+            They mostly come at night... mostly.
+        - responses:
+            - ["I can help you, for a price", quest_raiders]
+            - ["What was that other stuff you were talking about again?", back]
+            - ["That sounds too dangerous for me, good luck!", stop_talking]
+
+    elaborate_well:
+        - say: |
+            A foul and dreadful toxin has contaminated our water well. Rumors tell of an antidote. If only someone could find it.
+        - responses:
+            - ["Wait a second... I'm someone!", quest_well]
+            - ["What was that other stuff you were talking about again?", back]
+            - ["I think I'm allergic to poison", back]
+
+    elaborate_beer:
+        - say: |
+            After this keg, and that keg, there's only one keg left! Something must be done.
+        - responses:
+            - ["Running out of beer is no laughing matter. I'll run to the brewery for more", quest_beer]
+            - ["Fate has done you a favor, Coors is terrible beer.", back]
+
+    quest_raiders:
+        - say: |
+            You've picked up a quest!
+        - start_quest: raiders
+        - back
+
+    quest_well:
+        - say: |
+            You've picked up a quest!
+        - start_quest: well
+        - back
+
+    quest_beer:
+        - say: |
+            You've picked up a quest!
+        - start_quest: beer
+        - back
+
+    stop_talking:
+        - end
