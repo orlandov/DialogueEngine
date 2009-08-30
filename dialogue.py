@@ -10,7 +10,9 @@ class DialogueEngine(object):
         else:
             (filename, callbacks) = args
             self.tree = yaml.load(file(filename))
-        self.__dict__.update(callbacks)
+        print "TREE IS", self.tree
+        self.callbacks = callbacks
+        print "DIR", dir(self)
 
     def run(self):
         start_section = self.tree['START']
@@ -38,13 +40,14 @@ class DialogueEngine(object):
                         raise Exception("Unknown command %s" % (command,))
                 elif isinstance(command, dict):
                     if command.get("say"):
-                        self.say_cb(command['say'])
+                        print self.callbacks
+                        self.callbacks['say'](command['say'])
                     elif command.get("responses"):
-                        section = self.responses_cb(command.get("responses"))
-                        if section == 'back':
-                            return
+                        section = self.callbacks['responses'](command.get("responses"))
+                        print "SECTION IS", section
+                        if section == 'back': return
                         self.run_section(section)
                     elif command.get("start_quest"):
-                        self.quest_cb(command.get("start_quest"))
+                        self.callbacks['quest'](command.get("start_quest"))
                 else:
                     raise Exception("Invalid command %s" % (command,))
