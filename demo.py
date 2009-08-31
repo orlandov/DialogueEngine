@@ -1,4 +1,8 @@
+#!/usr/bin/python
+
 import dialogue
+import yaml
+import sys
 
 def main():
     state = {
@@ -25,12 +29,13 @@ def main():
         print state
 
     callbacks = {
-        "say_cb": say_cb,
-        "responses_cb": responses_cb,
-        "quest_cb": quest_cb
+        "say": say_cb,
+        "responses": responses_cb,
+        "quest": quest_cb
     }
 
     dialog = dialogue.DialogueEngine('demo.yaml', callbacks)
+    dialog.run()
 
 if __name__ == "__main__":
     main()

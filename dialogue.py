@@ -1,5 +1,11 @@
 #!python
 
+try:
+    import yaml
+except:
+    pass
+
+import sys
 import itertools
 
 class EndException(Exception):
