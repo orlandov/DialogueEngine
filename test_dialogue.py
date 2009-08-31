@@ -15,12 +15,18 @@ class TestDialogue(unittest.TestCase):
                     { "responses": [
                         ["response1", "resp1"],
                         ["response2", "resp2"],
-                        ["response3", "end"],
+                        ["response3", "stop"],
                     ] }
                 ],
                 'resp1': [
                     { "say": "hello" },
-                    'end'
+                    { "responses": [
+                        ["response4", "resp4"],
+                        ["response5", "back"],
+                    ] }
+                ],
+                'stop': [
+                    'end'    
                 ]
 
             }
@@ -29,12 +35,14 @@ class TestDialogue(unittest.TestCase):
         self.state = { "say": [], "responses": [] }
 
         def say_cb(text):
-            self.state['say'].append(text)
+            self.state["say"].append(text)
+
+        self.replies = ["resp1", "back", "stop"]
 
         def responses_cb(responses):
-            print "I WAS CALLED"
-            self.state['responses'].append(responses)
-            return "resp1"
+            self.state['responses'].append([ response[0] for response in responses ])
+            resp = self.replies.pop(0)
+            return resp
 
         callbacks = {
             "say": say_cb,
@@ -42,13 +50,18 @@ class TestDialogue(unittest.TestCase):
         }
         self.dialogue = dialogue.DialogueEngine(callbacks, tree=self.tree)
 
-    def tearDown(self):
-        pass
-
     def test_simple(self):
-        print self.state
-        print self.tree
         self.dialogue.run()
+        self.assertEqual(self.state,
+            {
+                "say": ["say1", "hello", "say1"],
+                "responses": [
+                    ["response1", "response2", "response3"],
+                    ["response4", "response5"],
+                    ["response1", "response2", "response3"],
+                ]
+            }
+        )
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,3 +1,6 @@
+#!python
+
+import itertools
 
 class EndException(Exception):
     pass
@@ -10,44 +13,40 @@ class DialogueEngine(object):
         else:
             (filename, callbacks) = args
             self.tree = yaml.load(file(filename))
-        print "TREE IS", self.tree
         self.callbacks = callbacks
-        print "DIR", dir(self)
 
     def run(self):
         start_section = self.tree['START']
-        print "Start section is ", start_section
         try:
             self.run_section(start_section)
         except EndException:
             # we stopped talking to the NPC
-            pass
-        
+            return
+
+    def get_section(self, section_name):
+        return self.tree['SECTIONS'][section_name]
+
     def run_section(self, section_name):
         tree = self.tree
-        while True:
-            for command in tree['SECTIONS'][section_name]:
-                if isinstance(command, str):
-                    if command == "end":
-                        # indicate we'd like to stop talking
-                        raise EndException
-                    elif command == "pause":
-                        print "Press any key to continue"
-                        sys.stdin.readline()
-                    elif command == "back":
-                        return
-                    else:
-                        raise Exception("Unknown command %s" % (command,))
-                elif isinstance(command, dict):
-                    if command.get("say"):
-                        print self.callbacks
-                        self.callbacks['say'](command['say'])
-                    elif command.get("responses"):
-                        section = self.callbacks['responses'](command.get("responses"))
-                        print "SECTION IS", section
-                        if section == 'back': return
-                        self.run_section(section)
-                    elif command.get("start_quest"):
-                        self.callbacks['quest'](command.get("start_quest"))
+        for command in itertools.cycle(self.get_section(section_name)):
+            if isinstance(command, str):
+                if command == "end":
+                    # indicate we"d like to stop talking
+                    raise EndException
+                elif command == "back":
+                    return
                 else:
-                    raise Exception("Invalid command %s" % (command,))
+                    raise Exception("Unknown command %s" % (command,))
+            elif isinstance(command, dict):
+                if command.get("say"):
+                    self.callbacks["say"](command["say"])
+                elif command.get("responses"):
+                    section = self.callbacks["responses"](command.get("responses"))
+                    if section == "back": return
+                    self.run_section(section)
+                elif command.get("start_quest"):
+                    self.callbacks["quest"](command.get("start_quest"))
+                else:
+                    raise Exception("Unknown command %s" % (command,))
+            else:
+                raise Exception("Invalid command %s" % (command,))
