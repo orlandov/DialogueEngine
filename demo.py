@@ -7,13 +7,11 @@ import sys
 def main():
     state = {
         'quests': {},
-        'say_log': [],
     }
 
     # set up some closures
     def say_cb(text):
         print "NPC says:", text
-        state['say_log'].append(text)
 
     def get_reply(responses):
         for i, response in enumerate(responses):
@@ -26,7 +24,6 @@ def main():
     def quest_cb(name):
         print "You've picked up the '%s' quest!" % (name,)
         state['quests'][name] = 1
-        print state
 
     callbacks = {
         "say": say_cb,
@@ -38,6 +35,8 @@ def main():
     while responses:
         choice = get_reply(responses)
         responses = dialog.reply(choice)
+
+    print "State was", state
 
 if __name__ == "__main__":
     main()

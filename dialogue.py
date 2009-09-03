@@ -22,11 +22,7 @@ class DialogueEngine(object):
     def __init__(self, *args, **kwargs):
         """A very simple dialogue engine for a game.
            d = DialogueEngine(tree, callbacks)
-           d = DialogueEngine('screenplay.yaml', callbacks)
-           >>> d.run()
-           -> runs script until next responses prompt and then fires calls 
-                      the respsonses callback
-           d.reply(1) -> replies with the desired response"""
+           d = DialogueEngine('screenplay.yaml', callbacks)"""
 
         (obj, callbacks) = args
         if isinstance(obj, dict):
