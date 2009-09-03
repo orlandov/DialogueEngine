@@ -57,19 +57,19 @@ class DialogueEngine(object):
         return self.tree['SECTIONS'][section_name]
 
     def reply(self, choice):
-        try:
-            self.run_section(self.section_stack[-1], choice)
-        except ResponseException, e:
-            print "got response exception", e
-            return e
-        except BackException, e:
-            self.section_stack.pop(-1)
+        while True:
             try:
-                print "Trying to run ", self.section_stack[-1]
-                self.run_section(self.section_stack[-1])
-                return e
+                self.run_section(self.section_stack[-1], choice)
             except ResponseException, e:
+                print "got response exception", e
                 return e
+            except BackException, e:
+                self.section_stack.pop(-1)
+                choice = None
+                continue
+            except EndException:
+                print "The End"
+                return
 
     def run_section(self, section_name, choice=None):
         tree = self.tree
@@ -102,6 +102,8 @@ class DialogueEngine(object):
                         self.callbacks["responses"](command.get("responses"))
                         raise ResponseException(command.get("responses"))
                     else:
+                        # TODO turn choice into the section to jump to instead
+                        # of an index in the choices
                         section = command.get('responses')[choice][1]
                         print "section was", section
                         if section == "back":

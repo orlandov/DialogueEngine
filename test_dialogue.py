@@ -28,8 +28,8 @@ class TestDialogue(unittest.TestCase):
                 'thanks': [
                     { "say": "We haven't seen one of your kind in ages" },
                     { "responses": [
+                        ["Blah blah blah", "foo"],
                         ["Say the other thing again", "back"],
-                        ["I'm leaving now", "end"],
                     ] }
                 ],
             }
@@ -54,18 +54,21 @@ class TestDialogue(unittest.TestCase):
 
     def test_simple(self):
         print self.dialogue.run()
-        # npc says: Greetings stranger
+
         print self.dialogue.reply(0)
-        # npc says: You sure are lost
+
         print self.dialogue.reply(1)
-        # npc says: Greetings stranger
+
         print self.dialogue.reply(0)
-        # npc says: You sure are lost
+
         print self.dialogue.reply(1)
-        # npc says: Greetings stranger
+
         print self.dialogue.reply(0)
-        # npc says: We haven't seen one of your kind in ages
+
         print self.dialogue.reply(0)
+
+        print self.dialogue.reply(1)
+
         print self.dialogue.reply(1)
 
 if __name__ == "__main__":
