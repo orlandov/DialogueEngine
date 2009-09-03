@@ -15,13 +15,13 @@ def main():
         print "NPC says:", text
         state['say_log'].append(text)
 
-    def responses_cb(responses):
+    def get_reply(responses):
         for i, response in enumerate(responses):
-            print "%d. %s" % (i, response[0])
+            print "%d. %s" % (i, response)
         print "\nChoose a response: ",
         val = int(sys.stdin.readline().strip())
         print "you picked %s" % (val,)
-        return responses[val][1]
+        return val
 
     def quest_cb(name):
         print "You've picked up the '%s' quest!" % (name,)
@@ -30,12 +30,14 @@ def main():
 
     callbacks = {
         "say": say_cb,
-        "responses": responses_cb,
         "quest": quest_cb
     }
 
     dialog = dialogue.DialogueEngine('demo.yaml', callbacks)
-    dialog.run()
+    responses = dialog.run()
+    while responses:
+        choice = get_reply(responses)
+        responses = dialog.reply(choice)
 
 if __name__ == "__main__":
     main()

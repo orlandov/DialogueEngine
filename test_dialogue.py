@@ -35,11 +35,11 @@ class TestDialogue(unittest.TestCase):
             }
         }
         # record actions in state
-        self.state = { "say": [], "responses": [] }
+        self.state = { "say": None, "responses": [] }
 
         def say_cb(text):
             print "npc said", text
-            self.state["say"].append(text)
+            self.state["say"] = text
 
         self.replies = ["resp1", "back", "stop"]
 
@@ -52,24 +52,37 @@ class TestDialogue(unittest.TestCase):
         }
         self.dialogue = dialogue.DialogueEngine(self.tree, callbacks)
 
+    def assert_say(self, text):
+        self.assertEqual(text, self.state['say'])
+
     def test_simple(self):
         print self.dialogue.run()
 
+        self.assert_say('Greetings stranger')
         print self.dialogue.reply(0)
 
+        self.assert_say('You sure are lost')
         print self.dialogue.reply(1)
 
+        self.assert_say('Greetings stranger')
         print self.dialogue.reply(0)
 
+        self.assert_say('You sure are lost')
         print self.dialogue.reply(1)
 
+        self.assert_say('Greetings stranger')
         print self.dialogue.reply(0)
 
+        self.assert_say('You sure are lost')
         print self.dialogue.reply(0)
 
+        self.assert_say("We haven't seen one of your kind in ages")
         print self.dialogue.reply(1)
 
+        self.assert_say('You sure are lost')
         print self.dialogue.reply(1)
+
+        self.assert_say('Greetings stranger')
 
 if __name__ == "__main__":
     unittest.main()
