@@ -105,8 +105,33 @@ class DialogueEngine(object):
 
         logging.debug("In run_section %s %s" % (section_name, self.section_stack,))
         for command in itertools.cycle(self.get_section(section_name)):
-            # a simple string command
-            if isinstance(command, str):
+            if command.get("say"):
+                if choice is None and self.callbacks.get('say'):
+                    self.callbacks["say"](command["say"])
+
+            elif command.get("responses"):
+                if choice is None:
+                    if self.callbacks.get("responses"):
+                        self.callbacks["responses"](command.get("responses"))
+                    raise ResponseException(command.get("responses"))
+
+                else:
+                    # TODO turn choice into the section to jump to instead
+                    # of an index in the choices
+                    section = command.get('responses')[choice][1]
+                    logging.debug("User chose %s" % (section,))
+
+                    if section == "back":
+                        raise BackException()
+                    elif section == "end":
+                        raise EndException()
+                    self.run_section(section)
+
+            elif command.get("start_quest"):
+                self.callbacks["quest"](command.get("start_quest"))
+
+            elif command.get("dialogue"):
+                command = command.get("dialogue")
                 if command == "end":
                     # indicate we"d like to stop talking
                     raise EndException
@@ -114,30 +139,6 @@ class DialogueEngine(object):
                     raise BackException()
                 else:
                     raise Exception("Unknown command %s" % (command,))
-            # a hash command
-            elif isinstance(command, dict):
-                if command.get("say"):
-                    if choice is None and self.callbacks.get('say'):
-                        self.callbacks["say"](command["say"])
-                elif command.get("responses"):
-                    if choice is None:
-                        if self.callbacks.get("responses"):
-                            self.callbacks["responses"](command.get("responses"))
-                        raise ResponseException(command.get("responses"))
-                    else:
-                        # TODO turn choice into the section to jump to instead
-                        # of an index in the choices
-                        section = command.get('responses')[choice][1]
-                        logging.debug("User chose %s" % (section,))
 
-                        if section == "back":
-                            raise BackException()
-                        elif section == "end":
-                            raise EndException()
-                        self.run_section(section)
-                elif command.get("start_quest"):
-                    self.callbacks["quest"](command.get("start_quest"))
-                else:
-                    raise Exception("Unknown command %s" % (command,))
             else:
-                raise Exception("Invalid command %s" % (command,))
+                raise Exception("Unknown command %s" % (command,))

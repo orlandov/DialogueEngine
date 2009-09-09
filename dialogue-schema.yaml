@@ -1,0 +1,36 @@
+---
+# A schema to validate dialogue scripts
+# to validate a script run:
+#
+# kwalify -lf dialogue-schema.yaml dialogue.yaml
+
+type: map
+mapping:
+    "START":
+        type: str
+        required: yes
+    "SECTIONS":
+        type: map
+        required: yes
+        mapping:
+            =:
+                type: seq
+                sequence:
+                    - type: map
+                      mapping:
+                        "say":
+                            type: str
+                        "responses":
+                            type: seq
+                            sequence:
+                                - type: seq
+                                  sequence:
+                                    - type: str
+                        "start_quest":
+                            type: str
+                        "dialogue":
+                            type: str
+    "AVATAR":
+        required: yes
+    "NPC":
+        required: no

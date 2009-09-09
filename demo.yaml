@@ -47,19 +47,19 @@ SECTIONS:
         - say: |
             You've picked up a quest!
         - start_quest: raiders
-        - back
+        - dialogue: back
 
     quest_well:
         - say: |
             You've picked up a quest!
         - start_quest: well
-        - back
+        - dialogue: back
 
     quest_beer:
         - say: |
             You've picked up a quest!
         - start_quest: beer
-        - back
+        - dialogue: back
 
     stop_talking:
-        - end
+        - dialogue: end
