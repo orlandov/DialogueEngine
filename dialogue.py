@@ -19,12 +19,11 @@ class BackException(Exception):
     pass
 
 class DialogueEngine(object):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, obj, callbacks={}, state={}):
         """A very simple dialogue engine for a game.
            d = DialogueEngine(tree, callbacks)
            d = DialogueEngine('screenplay.yaml', callbacks)"""
 
-        (obj, callbacks) = args
         if isinstance(obj, dict):
             self.tree = obj
         elif isinstance(obj, str):
@@ -33,6 +32,7 @@ class DialogueEngine(object):
         logging.basicConfig(level=logging.INFO)
 
         self.callbacks = callbacks
+        self.state = state
 
     def run(self):
         """Start running the dialogue engine.
@@ -94,6 +94,7 @@ class DialogueEngine(object):
            @raises: EndException on end of script
            @raises: BackException on "back" reply"""
 
+        state = self.state
         tree = self.tree
 
         if choice is None:
@@ -107,18 +108,22 @@ class DialogueEngine(object):
         for command in itertools.cycle(self.get_section(section_name)):
             if command.get("say"):
                 if choice is None and self.callbacks.get('say'):
-                    self.callbacks["say"](command["say"])
+                    self.callbacks["say"](state, command["say"])
 
             elif command.get("responses"):
+                responses = []
+                for response in command.get('responses'):
+                    cond = response[2:]
+                    if not cond or eval(cond[0], state, {}):
+                        responses.append(response)
                 if choice is None:
                     if self.callbacks.get("responses"):
-                        self.callbacks["responses"](command.get("responses"))
-                    raise ResponseException(command.get("responses"))
+                        self.callbacks["responses"](state, responses)
+
+                    raise ResponseException(responses)
 
                 else:
-                    # TODO turn choice into the section to jump to instead
-                    # of an index in the choices
-                    section = command.get('responses')[choice][1]
+                    section = responses[choice][1]
                     logging.debug("User chose %s" % (section,))
 
                     if section == "back":
@@ -128,7 +133,10 @@ class DialogueEngine(object):
                     self.run_section(section)
 
             elif command.get("start_quest"):
-                self.callbacks["quest"](command.get("start_quest"))
+                self.callbacks["start_quest"](state, command.get("start_quest"))
+
+            elif command.get("complete_quest"):
+                self.callbacks["complete_quest"](state, command.get("complete_quest"))
 
             elif command.get("dialogue"):
                 command = command.get("dialogue")

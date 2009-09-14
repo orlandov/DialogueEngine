@@ -6,60 +6,148 @@ SECTIONS:
     main_dialog:
         - say: |
             Things are tough around here, let me tell you our problems
+
         - responses:
-            - ["Sure, tell me all about it", listen_more]
-            - ["That sounds boring. Bye.", stop_talking]
+            -
+              - "Sure, tell me all about it"
+              - listen_more
+              - not set(pc.finished_quests).intersection(['raiders','well','beer'])
+
+            # The 'end' section ends the conversation
+            -
+              - "That sounds boring. Bye."
+              - end
 
     listen_more:
         - say: |
             Raiders stole our cattle, our well was poisoned, and the beer is
             all gone!
-        - responses:
-            - ["Tell me about the raiders", elaborate_raiders]
-            - ["Tell me about the well", elaborate_well]
-            - ["Tell me about the beer", elaborate_beer]
-            - ["Good luck with that, buddy", stop_talking]
 
+        - responses:
+            # Raiders quest
+            -
+              - "Tell me about the raiders"
+              - elaborate_raiders
+              - pc.canAcceptQuest('raiders')
+            -
+              - "I've taken care of the raiders"
+              - complete_raiders
+              - pc.hasSatisfiedQuest('raiders')
+
+            # Well quest
+            -
+              - "Tell me about the well"
+              - elaborate_well
+              - pc.canAcceptQuest('well')
+            -
+              - "I have returned with the antidote"
+              - complete_well
+              - pc.hasSatisfiedQuest('well')
+
+            # Beer quest
+            -
+              - "Tell me about the beer"
+              - elaborate_beer
+              - pc.canAcceptQuest('beer')
+            -
+              - "Three cheers the beer is here!"
+              - complete_beer
+              - pc.hasSatisfiedQuest('beer')
+
+            # Reward for solving the three "quests"
+            -
+              - "Guard, I have solved all your problems"
+              - all_done
+              - pc.finished_quests == set(['raiders','well','beer'])
+
+            -
+              - "Good luck with that"
+              - end
+
+    # Raiders quest
     elaborate_raiders:
         - say: |
             They mostly come at night... mostly.
         - responses:
-            - ["I can help you, for a price", quest_raiders]
-            - ["What was that other stuff you were talking about again?", back]
-            - ["That sounds too dangerous for me, good luck!", stop_talking]
+            -
+              - "I can help you, for a price"
+              - quest_raiders
+              - pc.canAcceptQuest('raiders')
+            -
+              - "What was that other stuff you were talking about again?"
+              - back
+            -
+              - "That sounds too dangerous for me, good luck!"
+              - end
 
+    quest_raiders:
+        - say: |
+            Thank you so much, these raiders have terrified our village for too long!
+        - start_quest: raiders
+        - dialogue: back
+
+    complete_raiders:
+        - say: |
+            Thank you for defeating those evil doers
+        - complete_quest: raiders
+        - dialogue: back
+
+    # Well quest
     elaborate_well:
         - say: |
             A foul and dreadful toxin has contaminated our water well. Rumors tell of an antidote. If only someone could find it.
         - responses:
-            - ["Wait a second... I'm someone!", quest_well]
-            - ["What was that other stuff you were talking about again?", back]
-            - ["I think I'm allergic to poison", back]
-
-    elaborate_beer:
-        - say: |
-            After this keg, and that keg, there's only one keg left! Something must be done.
-        - responses:
-            - ["Running out of beer is no laughing matter. I'll run to the brewery for more", quest_beer]
-            - ["Fate has done you a favor, Coors is terrible beer.", back]
-
-    quest_raiders:
-        - say: |
-            You've picked up a quest!
-        - start_quest: raiders
-        - dialogue: back
+            -
+              - "Wait a second... I'm someone! I will fix your well."
+              - quest_well
+              - pc.canAcceptQuest('well')
+            -
+              - "Tell me about that other stuff"
+              - back
+            -
+              - "You're scaring me, bye"
+              - end
 
     quest_well:
         - say: |
-            You've picked up a quest!
+            You are a brave hero indeed, water bringer.
         - start_quest: well
         - dialogue: back
 
+    complete_well:
+        - say: |
+            Thank heavens now the orphans will have water to drink
+        - complete_quest: well
+        - dialogue: back
+
+    # Beer quest
+    elaborate_beer:
+        - say: |
+            After this keg, and that keg, there is only one keg left! Something must be done.
+        - responses:
+            -
+              - "Running out of beer is no laughing matter. I'll run to the brewery for more"
+              - quest_beer
+              - pc.canAcceptQuest('beer')
+
+            -
+              - "Tell me about all that other stuff"
+              - back
+
     quest_beer:
         - say: |
-            You've picked up a quest!
+            Three cheers for beer!
         - start_quest: beer
         - dialogue: back
 
-    stop_talking:
+    complete_beer:
+        - say: |
+            Thank heavens now the orphans will have beer to drink
+        - complete_quest: beer
+        - dialogue: back
+
+    # Final reward
+    all_done:
+        - say: |
+            For saving our village, I will give you the prized McGuffin. Thank you, Player Character
         - dialogue: end

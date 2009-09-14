@@ -28,6 +28,8 @@ mapping:
                                     - type: str
                         "start_quest":
                             type: str
+                        "complete_quest":
+                            type: str
                         "dialogue":
                             type: str
     "AVATAR":
